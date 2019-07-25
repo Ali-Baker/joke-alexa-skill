@@ -1,5 +1,6 @@
 const Alexa = require('ask-sdk-core');
 const client = require('https');
+const jokes = [];
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -19,16 +20,18 @@ const JokeIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'JokeIntent';
     },
     async handle(handlerInput) {
-        let speechOutput;
-
-        await getJoke().then(res => {
-            speechOutput = res.joke;
-        }).catch(err => speechOutput = err);
+        if(jokes.length === 0) {
+            for(let i = 0; i < 10; i++){
+                await getJoke().then(res => {
+                    jokes.push(res);
+                }).catch(err => speechOutput = err);
+            }
+        }
 
         return handlerInput.responseBuilder
           .speak(`
             <speak>
-              ${speechOutput} <break time="1s"/> 
+              ${jokes[0].joke} <break time="1s"/> 
               <voice name="Emma">Did you like this joke?</voice> 
             </speak> 
           `)
@@ -155,7 +158,7 @@ const getJoke = () => {
             res.on('error', (err) => reject(err))
         });
     })
-}
+};
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
