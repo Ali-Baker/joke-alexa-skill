@@ -1,4 +1,5 @@
 const Alexa = require('ask-sdk-core');
+const client = require('https');
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -17,12 +18,17 @@ const JokeIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'JokeIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = 'Want to hear a joke about construction? Nah, I\'m still working on it';
+    async handle(handlerInput) {
+        let speechOutput;
+
+        await getJoke().then(res => {
+            speechOutput = res.joke;
+        }).catch(err => speechOutput = err);
+
         return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+          .speak(speechOutput)
+          //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+          .getResponse();
     }
 };
 const HelpIntentHandler = {
@@ -98,6 +104,33 @@ const ErrorHandler = {
             .getResponse();
     }
 };
+
+const getJoke = () => {
+    const options = {
+        hostname: 'icanhazdadjoke.com',
+        path: '/',
+        headers: {
+            Accept: 'application/json'
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        client.get(options, res => {
+            let data = '';
+            res.on('data', d => {
+                data += d;
+            });
+            res.on('end', function() {
+                if (res.statusCode === 200) {
+                    resolve(JSON.parse(data));
+                } else {
+                    reject('Something went wrong');
+                }
+            });
+            res.on('error', (err) => reject(err))
+        });
+    })
+}
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've

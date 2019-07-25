@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-hmsd-alexa-joke-default",
             "handler": "index.handler",
-            "revisionId": "ef0e610f-9342-441a-af61-c16a7dae4c14",
+            "revisionId": "8ac1fa96-1a2d-43bf-8e2a-ea5c0a58b9c2",
             "runtime": "nodejs8.10"
           }
         ]
