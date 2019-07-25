@@ -10,7 +10,7 @@
         },
         "interactionModel": {
           "en-GB": {
-            "eTag": "4f353dbb92ed5b6764033c3f03087da1"
+            "eTag": "5d85313e88272aa2dddf2f15e6ca9ace"
           }
         },
         "lambda": [
@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-hmsd-alexa-joke-default",
             "handler": "index.handler",
-            "revisionId": "817f1ec7-33c0-403d-9b58-2a306e8dd2e8",
+            "revisionId": "ef0e610f-9342-441a-af61-c16a7dae4c14",
             "runtime": "nodejs8.10"
           }
         ]
