@@ -6,11 +6,11 @@
       "merge": {},
       "resources": {
         "manifest": {
-          "eTag": "860f62df61a14f6307f7436125d8c775"
+          "eTag": "bec60a407390cbd1f93db9000dd303ef"
         },
         "interactionModel": {
           "en-GB": {
-            "eTag": "5d85313e88272aa2dddf2f15e6ca9ace"
+            "eTag": "368b4ce68e73bd7b198546b65edf63de"
           }
         },
         "lambda": [
@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-hmsd-alexa-joke-default",
             "handler": "index.handler",
-            "revisionId": "8ac1fa96-1a2d-43bf-8e2a-ea5c0a58b9c2",
+            "revisionId": "a35247ff-3ff6-4857-8869-fcb2daaa1deb",
             "runtime": "nodejs8.10"
           }
         ]

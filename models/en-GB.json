@@ -27,11 +27,61 @@
                   ]
               },
               {
+                  "name": "YesNoIntent",
+                  "slots": [
+                      {
+                          "name": "yesNo",
+                          "type": "yesNoType"
+                      }
+                  ],
+                  "samples": [
+                      "{yesNo}"
+                  ]
+              },
+              {
                   "name": "AMAZON.NavigateHomeIntent",
                   "samples": []
               }
           ],
-          "types": []
+          "types": [
+              {
+                  "name": "yesNoType",
+                  "values": [
+                      {
+                          "id": "YES",
+                          "name": {
+                              "value": "yes",
+                              "synonyms": [
+                                  "yep",
+                                  "yeah",
+                                  "I do",
+                                  "yes please",
+                                  "you know it",
+                                  "of course",
+                                  "like",
+                                  "love",
+                                  "positive"
+                              ]
+                          }
+                      },
+                      {
+                          "id": "NO",
+                          "name": {
+                              "value": "no",
+                              "synonyms": [
+                                  "nope",
+                                  "I do not",
+                                  "no thank you",
+                                  "I don't think so",
+                                  "not really",
+                                  "not quite",
+                                  "negative"
+                              ]
+                          }
+                      }
+                  ]
+              }
+          ]
       }
   }
 }

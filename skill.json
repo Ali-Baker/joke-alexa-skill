@@ -23,7 +23,12 @@
         "endpoint": {
           "sourceDir": "lambda/custom",
           "uri": "ask-custom-hmsd-alexa-joke-default"
-        }
+        },
+        "interfaces": [
+          {
+            "type": "CAN_FULFILL_INTENT_REQUEST"
+          }
+        ]
       }
     },
     "manifestVersion": "1.0"

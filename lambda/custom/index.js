@@ -26,8 +26,33 @@ const JokeIntentHandler = {
         }).catch(err => speechOutput = err);
 
         return handlerInput.responseBuilder
-          .speak(speechOutput)
-          //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+          .speak(`
+            <speak>
+              ${speechOutput} <break time="1s"/> 
+              <voice name="Emma">Did you like this joke?</voice> 
+            </speak> 
+          `)
+          .reprompt(`<voice name="Emma">Did you like this joke?</voice> `)
+          .getResponse();
+    }
+};
+const YesNoIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+          && Alexa.getIntentName(handlerInput.requestEnvelope) === 'YesNoIntent';
+    },
+    handle(handlerInput) {
+        const yesNoSlot = handlerInput.requestEnvelope.request.intent.slots.yesNo;
+        const like = yesNoSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+        let responseText;
+
+        if(like === 'YES') {
+            responseText = `<audio src="https://aliali7-public.s3-eu-west-1.amazonaws.com/455.mp3" />`;
+        } else {
+            responseText = "Sorry about that, I'll make a note";
+        }
+        return handlerInput.responseBuilder
+          .speak(responseText)
           .getResponse();
     }
 };
@@ -139,6 +164,7 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         JokeIntentHandler,
+        YesNoIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
