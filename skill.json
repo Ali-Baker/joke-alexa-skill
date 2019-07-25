@@ -2,15 +2,15 @@
   "manifest": {
     "publishingInformation": {
       "locales": {
-        "en-US": {
+        "en-GB": {
           "summary": "Sample Short Description",
           "examplePhrases": [
-            "Alexa open hello world",
-            "hello",
+            "Alexa open joke",
+            "joke",
             "help"
           ],
           "name": "hmsd-alexa-joke",
-          "description": "Sample Full Description"
+          "description": "Joke Skill"
         }
       },
       "isAvailableWorldwide": true,
