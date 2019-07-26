@@ -1,5 +1,6 @@
 const Alexa = require('ask-sdk-core');
 const client = require('https');
+const util = require('./util');
 const jokes = [];
 
 const LaunchRequestHandler = {
@@ -8,6 +9,8 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Welcome, you can say Joke or Help. Which would you like to try?';
+        const attributes = {};
+        handlerInput.attributesManager.setSessionAttributes(attributes);
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -28,10 +31,22 @@ const JokeIntentHandler = {
             }
         }
 
+
+        const userId = handlerInput.requestEnvelope.context.System.user.userId;
+        const badJokes = await util.getUserBadJokes(userId);
+        const filteredJokes = jokes.filter(joke => !badJokes.includes(joke.id));
+        if (filteredJokes.length === 0) {
+            return handlerInput.responseBuilder.speak('no more jokes').getResponse();
+        }
+
+        const randomIndex = Math.floor(Math.random() * filteredJokes.length);
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.jokeId = filteredJokes[randomIndex].id;
+
         return handlerInput.responseBuilder
           .speak(`
             <speak>
-              ${jokes[0].joke} <break time="1s"/> 
+              ${filteredJokes[randomIndex].joke} <break time="1s"/> 
               <voice name="Emma">Did you like this joke?</voice> 
             </speak> 
           `)
@@ -44,7 +59,7 @@ const YesNoIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
           && Alexa.getIntentName(handlerInput.requestEnvelope) === 'YesNoIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const yesNoSlot = handlerInput.requestEnvelope.request.intent.slots.yesNo;
         const like = yesNoSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id;
         let responseText;
@@ -52,6 +67,9 @@ const YesNoIntentHandler = {
         if(like === 'YES') {
             responseText = `<audio src="https://aliali7-public.s3-eu-west-1.amazonaws.com/455.mp3" />`;
         } else {
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            await util.addJoke(sessionAttributes.jokeId, userId);
             responseText = "Sorry about that, I'll make a note";
         }
         return handlerInput.responseBuilder
