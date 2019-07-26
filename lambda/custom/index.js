@@ -3,6 +3,8 @@ const client = require('https');
 const util = require('./util');
 const jokes = [];
 
+const PERMISSIONS = ['alexa::alerts:reminders:skill:readwrite'];
+
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
@@ -74,6 +76,77 @@ const YesNoIntentHandler = {
         }
         return handlerInput.responseBuilder
           .speak(responseText)
+          .getResponse();
+    }
+};
+const CreateReminderIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+          && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CreateReminderIntent';
+    },
+    async handle(handlerInput) {
+        const requestEnvelope = handlerInput.requestEnvelope;
+        const responseBuilder = handlerInput.responseBuilder;
+        const consentToken = requestEnvelope.context.System.apiAccessToken;
+
+        switch (requestEnvelope.request.intent.confirmationStatus) {
+            case 'CONFIRMED':
+                console.log('Alexa confirmed intent, so clear to create reminder');
+                break;
+            case 'DENIED':
+                console.log('Alexa disconfirmed the intent; not creating reminder');
+                return responseBuilder
+                  .speak('Permission denied')
+                  .reprompt('What would like me to do')
+                  .getResponse();
+            case 'NONE':
+            default:
+                console.log('delegate back to Alexa to get confirmation');
+                return responseBuilder
+                  .addDelegateDirective()
+                  .getResponse();
+        }
+
+        if (!consentToken) {
+            return responseBuilder
+              .speak('Please enable Reminder permissions from your Alexa app.')
+              .withAskForPermissionsConsentCard(PERMISSIONS)
+              .getResponse();
+        }
+        try {
+            const client = handlerInput.serviceClientFactory.getReminderManagementServiceClient();
+
+            const reminderRequest = {
+                trigger: {
+                    type: 'SCHEDULED_RELATIVE',
+                    offsetInSeconds: '30',
+                },
+                alertInfo: {
+                    spokenInfo: {
+                        content: [{
+                            locale: 'en-GB',
+                            text: 'just another joke',
+                        }],
+                    },
+                },
+                pushNotification: {
+                    status: 'ENABLED',
+                },
+            };
+            const reminderResponse = await client.createReminder(reminderRequest);
+            console.log(JSON.stringify(reminderResponse));
+        } catch (error) {
+            if (error.name !== 'ServiceError') {
+                console.log(`error: ${error.stack}`);
+                return responseBuilder.speak(messages.ERROR).getResponse();
+            }
+            throw error;
+        }
+
+        const time = handlerInput.requestEnvelope.request.intent.slots.time;
+
+        return responseBuilder
+          .speak(`I'll tell you a joke everyday at ${time}`)
           .getResponse();
     }
 };
@@ -178,6 +251,18 @@ const getJoke = () => {
     })
 };
 
+const RequestLog = {
+    async process(handlerInput) {
+        console.log(`REQUEST ENVELOPE = ${JSON.stringify(handlerInput.requestEnvelope)}`);
+    },
+};
+
+const ResponseLog = {
+    process(handlerInput) {
+        console.log(`RESPONSE = ${JSON.stringify(handlerInput.responseBuilder.getResponse())}`);
+    },
+};
+
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
 // defined are included below. The order matters - they're processed top to bottom.
@@ -186,12 +271,16 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         JokeIntentHandler,
         YesNoIntentHandler,
+        CreateReminderIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
         )
+    .addRequestInterceptors(RequestLog)
+    .addResponseInterceptors(ResponseLog)
     .addErrorHandlers(
         ErrorHandler,
         )
+    .withApiClient(new Alexa.DefaultApiClient())
     .lambda();

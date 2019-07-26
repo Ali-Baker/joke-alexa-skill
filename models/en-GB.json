@@ -39,6 +39,21 @@
                   ]
               },
               {
+                  "name": "CreateReminderIntent",
+                  "slots": [
+                      {
+                          "name": "time",
+                          "type": "AMAZON.TIME"
+                      }
+                  ],
+                  "samples": [
+                      "set a reminder at {time}",
+                      "create a reminder at {time}",
+                      "new reminder at {time}",
+                      "{time}"
+                  ]
+              },
+              {
                   "name": "AMAZON.NavigateHomeIntent",
                   "samples": []
               }

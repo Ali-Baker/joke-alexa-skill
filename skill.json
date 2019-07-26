@@ -10,7 +10,9 @@
             "help"
           ],
           "name": "hmsd-alexa-joke",
-          "description": "Joke Skill"
+          "description": "Joke Skill",
+          "smallIconUri": "https://aliali7-public.s3-eu-west-1.amazonaws.com/joke-sm.png",
+          "largeIconUri": "https://aliali7-public.s3-eu-west-1.amazonaws.com/joke-lg.png"
         }
       },
       "isAvailableWorldwide": true,
@@ -31,6 +33,11 @@
         ]
       }
     },
-    "manifestVersion": "1.0"
+    "manifestVersion": "1.0",
+    "permissions": [
+      {
+        "name": "alexa::alerts:reminders:skill:readwrite"
+      }
+    ]
   }
 }
